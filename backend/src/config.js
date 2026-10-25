@@ -14,6 +14,7 @@ const envSchema = z.object({
   SMTP_HOST: z.string().default("localhost"),
   SMTP_PORT: z.coerce.number().int().positive().default(1025),
   MAIL_FROM: z.string().default("FulfillHub <no-reply@fulfillhub.local>"),
+  WAREHOUSE_EMAIL: z.string().default("magazyn@fulfillhub.local"),
   CORS_ORIGIN: z.string().default("http://localhost:4200"),
 });
 
@@ -36,7 +37,12 @@ function loadConfig(env = process.env) {
     corsOrigin: parsed.CORS_ORIGIN,
     database: { url: parsed.DATABASE_URL },
     jwt: { secret: parsed.JWT_SECRET, expiresIn: parsed.JWT_EXPIRES_IN },
-    mail: { host: parsed.SMTP_HOST, port: parsed.SMTP_PORT, from: parsed.MAIL_FROM },
+    mail: {
+      host: parsed.SMTP_HOST,
+      port: parsed.SMTP_PORT,
+      from: parsed.MAIL_FROM,
+      warehouseAddress: parsed.WAREHOUSE_EMAIL,
+    },
   };
 }
 
