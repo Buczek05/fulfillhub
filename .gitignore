@@ -1,0 +1,22 @@
+# zalezności
+node_modules/
+
+# sekrety
+.env
+.env.local
+.env.*.local
+
+# build
+dist/
+build/
+coverage/
+
+# materiały kursowe spoza projektu (zestawy zadań z1/z2)
+ZTPAI/
+
+# zgłoszenie projektu – dane osobowe, poza repo
+zgloszenie.md
+
+# system
+.DS_Store
+*.log
