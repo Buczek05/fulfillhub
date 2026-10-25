@@ -192,8 +192,8 @@ Technicznie:
 **5.0**
 - [x] ≥ 5 powiązanych encji w spójnym modelu *(E1: 7 tabel)*
 - [x] ≥ 3 reguły biznesowe *(E1: reguły 1–7; reguła 8 w E4)*
-- [ ] Frontend (Angular) komunikujący się z API, logowanie i auth po stronie frontu
-- [ ] Listowanie, dodawanie, edycja, usuwanie i obsługa błędów API w UI
+- [x] Frontend (Angular) komunikujący się z API, logowanie i auth po stronie frontu *(E3)*
+- [x] Listowanie, dodawanie, edycja, usuwanie i obsługa błędów API w UI *(E3)*
 - [ ] Mechanizm asynchroniczny (event bus)
 - [x] Testy najważniejszej logiki *(E2: 63 testy razem)*
 - [x] Docker Compose z osobnymi kontenerami dla backendu i bazy *(E0)*
@@ -216,7 +216,7 @@ Technicznie:
 | **E0 – Setup** ✅ | 19.10 | monorepo, docker-compose (db + mailpit), szkielet Express wg architektury, config, Knex, pierwsza migracja, error handling, requestLogger | `docker compose up` stawia bazę, `/api/health` zwraca 200 |
 | **E1 – Rdzeń na 3.0** ✅ | 24.10 | migracje wszystkich tabel, moduły shops, products (CRUD), stock (receipts, adjustments, movements), orders (create z rezerwacją, status, ship, cancel), mappery, walidacja | sekcja 3.0 odhaczona, reguły 1–6 działają |
 | **E2 – Na 4.0** ✅ | 31.10 | auth JWT, role i własność danych, paginacja i filtry, Swagger, testy jednostkowe i integracyjne, seed demo | sekcja 4.0 odhaczona, `npm test` zielone |
-| **E3 – Frontend** | 8.11 | Angular: logowanie, layout, wszystkie ekrany z sekcji 7, obsługa błędów | pełny scenariusz demo przeklikany w UI |
+| **E3 – Frontend** ✅ | 8.11 | Angular: logowanie, layout, wszystkie ekrany z sekcji 7, obsługa błędów | pełny scenariusz demo przeklikany w UI |
 | **E4 – Na 5.0** | 11.11 | event bus + maile (Mailpit), reguła 8, frontend i backend w compose, README, ERD, opcjonalnie CI | sekcja 5.0 odhaczona, czysty klon repo uruchamia się według README |
 | **E5 – Oddanie** | 13.11 | poprawki, tag `v1.0`, nagranie demo | wymagania formalne odhaczone |
 

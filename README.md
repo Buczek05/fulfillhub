@@ -11,7 +11,7 @@ kompletuje, pakuje i wysyła ich zamówienia. Sklep widzi wyłącznie swoje prod
 |---|---|
 | Backend | Node.js 22, Express 5, Zod 4 |
 | Baza danych | PostgreSQL 17, Knex (migracje) |
-| Frontend | Angular (dojdzie w etapie E3) |
+| Frontend | Angular 22 (standalone components, signals) + Angular Material |
 | Auth | JWT (jsonwebtoken) + bcrypt |
 | Dokumentacja API | OpenAPI 3 + Swagger UI |
 | Testy | Vitest + Supertest |
@@ -30,6 +30,7 @@ Po starcie:
 
 | Adres | Co to |
 |---|---|
+| http://localhost:4200 | **aplikacja (Angular)** |
 | http://localhost:3000/api/health | healthcheck API |
 | http://localhost:3000/api/docs | Swagger UI – dokumentacja API |
 | http://localhost:8025 | Mailpit – podgląd wysłanych maili |
@@ -41,6 +42,35 @@ Zatrzymanie (`-v` kasuje też dane bazy):
 
 ```bash
 docker compose down -v
+```
+
+## Ekrany aplikacji
+
+| Ekran | Kto widzi | Co robi |
+|---|---|---|
+| Logowanie | wszyscy | e-mail i hasło, obsługa błędnych danych |
+| Pulpit | wszyscy | kafelki zamówień per status, licznik niskiego stanu, ostatnie zamówienia |
+| Produkty | wszyscy | tabela z paginacją, wyszukiwarką, filtrem sklepu i „niski stan” |
+| Produkt – formularz | ADMIN, SHOP | dodawanie i edycja, usuwanie z potwierdzeniem |
+| Produkt – szczegóły | wszyscy | stany, historia ruchów, przyjęcie dostawy i korekta (ADMIN, WAREHOUSE) |
+| Zamówienia | wszyscy | tabela z paginacją, filtr statusu i sklepu, wyszukiwarka |
+| Zamówienie – nowe | ADMIN, SHOP | dane odbiorcy i dynamiczna lista pozycji z podglądem dostępności |
+| Zamówienie – szczegóły | wszyscy | przyciski dozwolonych przejść, wysyłka, anulowanie |
+| Sklepy | ADMIN edytuje, reszta podgląd | lista i formularz |
+| Użytkownicy | ADMIN | lista, zakładanie kont, dezaktywacja |
+
+Token JWT trzymany jest w `localStorage`, a zalogowany użytkownik w signalu. `HttpInterceptor`
+dokleja nagłówek `Authorization`, a odpowiedź 401 wylogowuje. Menu i przyciski chowają się zależnie
+od roli — uprawnień pilnuje jednak backend, front tylko oszczędza użytkownikowi ekranu z błędem.
+Błędy API lądują w snackbarze z komunikatem po polsku; przy braku stanu pokazujemy, czego i ile brakuje.
+
+## Uruchomienie frontendu lokalnie
+
+```bash
+docker compose up -d db mailpit backend
+cd frontend
+npm install
+npm start           # http://localhost:4200, /api proxowane na localhost:3000
 ```
 
 ## Uruchomienie backendu lokalnie
@@ -130,6 +160,12 @@ i `backend/.env.example` (uruchomienie lokalne). Pliki `.env` są w `.gitignore`
 ## Struktura repozytorium
 
 ```
+frontend/         – aplikacja Angular (nginx + proxy /api w kontenerze)
+  src/app/
+    core/         – modele API, serwisy HTTP, auth, obsługa błędów
+    layout/       – szkielet z menu zależnym od roli
+    features/     – ekrany: login, pulpit, produkty, zamówienia, sklepy, użytkownicy
+    shared/       – wspólne okna dialogowe
 backend/          – REST API (Express)
   src/
     app.js        – createApp(deps): buduje aplikację, nie uruchamia serwera
@@ -209,6 +245,6 @@ Projekt powstaje etapami opisanymi w [`docs/PLAN.md`](docs/PLAN.md) (sekcja 11).
 - [x] **E0 – Setup**: monorepo, Docker Compose (db + mailpit + backend), szkielet Express, config, Knex, pierwsza migracja, obsługa błędów
 - [x] **E1 – Rdzeń**: sklepy, produkty, stany magazynowe, zamówienia z rezerwacją stanu
 - [x] **E2 – Auth i jakość**: JWT, role, własność danych, users, Swagger, testy integracyjne, seed demo
-- [ ] **E3 – Frontend**: Angular
+- [x] **E3 – Frontend**: Angular — logowanie, pulpit, produkty, zamówienia, sklepy, użytkownicy
 - [ ] **E4 – Asynchroniczność**: event bus, maile, README, ERD
 - [ ] **E5 – Oddanie**: tag `v1.0`, demo
