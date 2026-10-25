@@ -172,10 +172,10 @@ Technicznie:
 - [ ] Backend + REST API + PostgreSQL, trwały zapis
 - [ ] ≥ 3 encje, ≥ 1 relacja (mamy 7)
 - [ ] CRUD głównych zasobów, poprawne metody HTTP i kody odpowiedzi
-- [ ] Warstwy: routes/controller, service, repository
+- [x] Warstwy: routes/controller, service, repository *(szkielet + moduł health, E0)*
 - [ ] DTO (mappery) oddzielające API od modelu bazy
 - [ ] Walidacja wejścia (Zod)
-- [ ] Globalna obsługa błędów
+- [x] Globalna obsługa błędów *(E0)*
 - [ ] ≥ 1 reguła biznesowa poza CRUD
 
 **4.0**
@@ -186,8 +186,8 @@ Technicznie:
 - [ ] Swagger / OpenAPI
 - [ ] ≥ 5 testów jednostkowych logiki biznesowej
 - [ ] ≥ 3 testy integracyjne REST API
-- [ ] Migracje (Knex)
-- [ ] Konfiguracja przez env, brak sekretów w repo
+- [x] Migracje (Knex) *(E0: shops, users)*
+- [x] Konfiguracja przez env, brak sekretów w repo *(E0)*
 
 **5.0**
 - [ ] ≥ 5 powiązanych encji w spójnym modelu
@@ -196,12 +196,12 @@ Technicznie:
 - [ ] Listowanie, dodawanie, edycja, usuwanie i obsługa błędów API w UI
 - [ ] Mechanizm asynchroniczny (event bus)
 - [ ] Testy najważniejszej logiki
-- [ ] Docker Compose z osobnymi kontenerami dla backendu i bazy
+- [x] Docker Compose z osobnymi kontenerami dla backendu i bazy *(E0)*
 - [ ] README pozwalające uruchomić projekt innej osobie
 - [ ] Element rozszerzony z realnym użyciem (e-maile przez Mailpit)
 
 **Wymagania formalne**
-- [ ] Repo GitHub, tag wersji oddawanej (np. `v1.0`)
+- [ ] Repo GitHub *(jest: Buczek05/fulfillhub)*, tag wersji oddawanej (np. `v1.0`)
 - [ ] Historia commitów pokazująca rozwój
 - [ ] README: opis, technologie, instrukcja uruchomienia, główne funkcjonalności
 - [ ] ERD (Mermaid w `docs/` i w README)
@@ -213,7 +213,7 @@ Technicznie:
 
 | Etap | Do kiedy | Zakres | Gotowe, gdy |
 |---|---|---|---|
-| **E0 – Setup** | 19.10 | monorepo, docker-compose (db + mailpit), szkielet Express wg architektury, config, Knex, pierwsza migracja, error handling, requestLogger | `docker compose up` stawia bazę, `/api/health` zwraca 200 |
+| **E0 – Setup** ✅ | 19.10 | monorepo, docker-compose (db + mailpit), szkielet Express wg architektury, config, Knex, pierwsza migracja, error handling, requestLogger | `docker compose up` stawia bazę, `/api/health` zwraca 200 |
 | **E1 – Rdzeń na 3.0** | 24.10 | migracje wszystkich tabel, moduły shops, products (CRUD), stock (receipts, adjustments, movements), orders (create z rezerwacją, status, ship, cancel), mappery, walidacja | sekcja 3.0 odhaczona, reguły 1–6 działają |
 | **E2 – Na 4.0** | 31.10 | auth JWT, role i własność danych, paginacja i filtry, Swagger, testy jednostkowe i integracyjne, seed demo | sekcja 4.0 odhaczona, `npm test` zielone |
 | **E3 – Frontend** | 8.11 | Angular: logowanie, layout, wszystkie ekrany z sekcji 7, obsługa błędów | pełny scenariusz demo przeklikany w UI |

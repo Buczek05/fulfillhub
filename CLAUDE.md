@@ -55,6 +55,9 @@ Zasady:
 - Kody HTTP: 200/201 (+ nagłówek `Location`)/204, 400, 401, 403, 404, 409, 500.
 - Sekrety tylko w `.env` (w `.gitignore`); w repo `.env.example` z bezpiecznymi wartościami przykładowymi.
 - Bez TypeScriptu na backendzie (spójność z materiałami kursu); frontend w TypeScripcie (Angular).
+- Backend w CommonJS (`require` / `module.exports`) – tak jak materiał 02 kursu. Wyjątek: pliki testów
+  (`backend/tests/**`) używają `import`, bo Vitest nie daje się wczytać przez `require`; ESM i tak
+  importuje moduły CommonJS bez problemu.
 
 ## Sposób pracy
 - **Historia commitów jest oceniana** („historia commitów pokazująca rozwój projektu”). Commituj małymi krokami, po każdej działającej funkcji, opisowe wiadomości po angielsku w stylu Conventional Commits (`feat(orders): reserve stock on order creation`). Nie squashuj.
@@ -63,12 +66,18 @@ Zasady:
 - Nie dodawaj funkcji spoza planu bez pytania. Nie dodawaj bibliotek, jeśli coś da się zrobić w kilku liniach.
 - Przy wątpliwościach co do wymagań – zapytaj, zamiast zgadywać.
 
-## Komendy (do uzupełnienia w trakcie)
+## Komendy
 ```
-docker compose up --build          # cała aplikacja
-cd backend && npm run dev          # backend lokalnie
-cd backend && npm test             # testy
+cp .env.example .env               # raz, przed pierwszym uruchomieniem
+docker compose up --build          # cała aplikacja (db + mailpit + backend)
+docker compose up -d db mailpit    # sama infrastruktura, backend lokalnie
+docker compose down -v             # stop + skasowanie danych bazy
+
+cd backend && npm run dev          # backend lokalnie (wymaga backend/.env)
+cd backend && npm test             # testy (Vitest)
 cd backend && npm run migrate      # knex migrate:latest
 cd backend && npm run seed         # dane demo
-cd frontend && npm start           # frontend lokalnie
+cd frontend && npm start           # frontend lokalnie (od E3)
 ```
+
+Podgląd: API `http://localhost:3000/api/health`, Mailpit `http://localhost:8025`.
