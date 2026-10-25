@@ -32,8 +32,13 @@ export function createFakeProductsRepository(products = []) {
     markAsUsed: (id) => history.add(id),
     findById: async (id) => rows.find((product) => product.id === id),
     findBySku: async (shopId, sku) => rows.find((p) => p.shopId === shopId && p.sku === sku),
+    // Kopie, tak jak prawdziwe repository zwracające świeże wiersze z bazy –
+    // inaczej „stan przed” i „stan po” byłyby tym samym obiektem.
     findByIdsForUpdate: async (ids) =>
-      rows.filter((product) => ids.includes(product.id)).sort((a, b) => a.id - b.id),
+      rows
+        .filter((product) => ids.includes(product.id))
+        .sort((a, b) => a.id - b.id)
+        .map((product) => ({ ...product })),
     create: async (input) => {
       const created = { id: rows.length + 1, quantityOnHand: 0, quantityReserved: 0, ...input };
       rows.push(created);
@@ -49,7 +54,7 @@ export function createFakeProductsRepository(products = []) {
       if (patch.quantityOnHand !== undefined) product.quantityOnHand = patch.quantityOnHand;
       if (patch.quantityReserved !== undefined) product.quantityReserved = patch.quantityReserved;
       product.version += 1;
-      return product;
+      return { ...product };
     },
     remove: async (id) => {
       const index = rows.findIndex((row) => row.id === id);

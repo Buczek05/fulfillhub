@@ -6,6 +6,7 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const { loadConfig } = require("../../src/config.js");
 const { buildApp } = require("../../src/buildApp.js");
+const { createEventBus } = require("../../src/events/eventBus.js");
 
 const migrationsDirectory = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -77,9 +78,11 @@ function setupTestDatabase() {
 
 export async function createTestContext() {
   const { config, db } = await setupTestDatabase();
-  const { app } = buildApp(config, { db });
+  // Własna szyna bez handlerów: testy nie wysyłają maili.
+  const eventBus = createEventBus();
+  const { app } = buildApp(config, { db, eventBus });
 
-  return { app, db, config };
+  return { app, db, config, eventBus };
 }
 
 export async function resetDatabase(db) {
