@@ -1,0 +1,164 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+body {
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+  color-scheme: light;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
+}
+/* You can add global styles to this file, and also import other style files */
+
+// --- style wspólne dla całej aplikacji ---
+
+h1 {
+  font: var(--mat-sys-headline-small);
+  margin: 0 0 1.25rem;
+}
+
+// Pasek nad tabelą: wyszukiwarka, filtry i akcja po prawej.
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  mat-form-field {
+    min-width: 180px;
+  }
+
+  .toolbar__spacer {
+    flex: 1 1 auto;
+  }
+}
+
+.table-card {
+  overflow: auto;
+
+  table {
+    width: 100%;
+  }
+}
+
+.empty {
+  padding: 1.5rem;
+  text-align: center;
+  opacity: 0.7;
+}
+
+// Status zamówienia – ten sam wygląd na liście, w szczegółach i na pulpicie.
+.status {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font: var(--mat-sys-label-small);
+  white-space: nowrap;
+
+  &--new {
+    background: var(--mat-sys-secondary-container);
+    color: var(--mat-sys-on-secondary-container);
+  }
+
+  &--picking,
+  &--packed {
+    background: var(--mat-sys-tertiary-container);
+    color: var(--mat-sys-on-tertiary-container);
+  }
+
+  &--shipped {
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+  }
+
+  &--cancelled {
+    background: var(--mat-sys-error-container);
+    color: var(--mat-sys-on-error-container);
+  }
+}
+
+.low-stock {
+  color: var(--mat-sys-error);
+  font-weight: 500;
+}
+
+.snack-error {
+  --mdc-snackbar-container-color: var(--mat-sys-error-container);
+  --mdc-snackbar-supporting-text-color: var(--mat-sys-on-error-container);
+}
+
+a {
+  color: var(--mat-sys-primary);
+}
+
+// Formularze: jedna kolumna pól i akcje wyrównane do prawej.
+.form {
+  display: flex;
+  flex-direction: column;
+  max-width: 520px;
+  padding-top: 0.5rem;
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+}
+
+// Siatka „etykieta: wartość” na ekranach szczegółów.
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem 2rem;
+
+  dt {
+    font: var(--mat-sys-label-small);
+    opacity: 0.7;
+  }
+
+  dd {
+    margin: 0.15rem 0 0;
+    font: var(--mat-sys-body-large);
+  }
+}
+
+.page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.card-gap {
+  margin-bottom: 1.25rem;
+}
