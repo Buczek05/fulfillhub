@@ -13,9 +13,18 @@ const dbDown = {
 
 const now = () => new Date("2026-10-25T10:00:00.000Z");
 
+// Szkielet aplikacji sprawdzamy na publicznych ścieżkach, więc repositories mogą zostać puste.
+const deps = (db) => ({
+  config: { corsOrigin: "http://localhost:4200" },
+  db,
+  tokenService: { sign: () => "token", verify: () => ({ sub: "1" }) },
+  passwordHasher: { hash: async () => "hash", compare: async () => false },
+  now,
+});
+
 describe("app skeleton", () => {
   it("returns 200 from /api/health when the database is reachable", async () => {
-    const response = await request(createApp({ db: dbUp, now })).get("/api/health");
+    const response = await request(createApp(deps(dbUp))).get("/api/health");
 
     expect(response.status).toBe(200);
     expect(response.body.status).toBe("ok");
@@ -24,7 +33,7 @@ describe("app skeleton", () => {
   });
 
   it("returns 503 from /api/health when the database is unreachable", async () => {
-    const response = await request(createApp({ db: dbDown, now })).get("/api/health");
+    const response = await request(createApp(deps(dbDown))).get("/api/health");
 
     expect(response.status).toBe(503);
     expect(response.body.status).toBe("degraded");
@@ -32,7 +41,7 @@ describe("app skeleton", () => {
   });
 
   it("returns a JSON 404 for an unknown route", async () => {
-    const response = await request(createApp({ db: dbUp, now })).get("/api/nope");
+    const response = await request(createApp(deps(dbUp))).get("/api/nope");
 
     expect(response.status).toBe(404);
     expect(response.body.error.code).toBe("ROUTE_NOT_FOUND");
@@ -40,7 +49,7 @@ describe("app skeleton", () => {
   });
 
   it("returns 400 INVALID_JSON for a malformed request body", async () => {
-    const response = await request(createApp({ db: dbUp, now }))
+    const response = await request(createApp(deps(dbUp)))
       .post("/api/health")
       .set("Content-Type", "application/json")
       .send("{ broken");
