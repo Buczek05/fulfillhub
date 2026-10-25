@@ -1,5 +1,7 @@
 const { NotFoundError, ValidationError, ConflictError } = require("../../errors/AppError");
 const { isShop, scopeShopId, assertOwnedByActor } = require("../../schemas/scope");
+const { crossedLowStockThreshold } = require("../../events/lowStock");
+const { ORDER_SHIPPED, STOCK_LOW } = require("../../events/events");
 
 // Reguła 3: cykl życia zamówienia trzymany jako dane, nie jako ciąg ifów.
 const STATUS_TRANSITIONS = {
@@ -21,8 +23,19 @@ function createOrdersService({
   productsRepository,
   shopsRepository,
   stockRepository,
+  eventBus = null,
   now = () => new Date(),
 }) {
+  // Zdarzenia wychodzą dopiero po commicie transakcji.
+  async function emitLowStock(products) {
+    if (!eventBus) return;
+
+    for (const product of products) {
+      const shop = await shopsRepository.findById(product.shopId);
+      eventBus.emit(STOCK_LOW, { product, shop });
+    }
+  }
+
   function assertTransitionAllowed(from, to) {
     if (!STATUS_TRANSITIONS[from].includes(to)) {
       throw new ConflictError(
@@ -68,7 +81,7 @@ function createOrdersService({
       );
     }
 
-    return db.transaction(async (trx) => {
+    const { order, wentLow } = await db.transaction(async (trx) => {
       const shop = await shopsRepository.findById(input.shopId, trx);
       if (!shop) throw new NotFoundError("Shop", "SHOP_NOT_FOUND");
 
@@ -126,14 +139,18 @@ function createOrdersService({
       const order = await ordersRepository.create({ ...input, createdAt }, trx);
       await ordersRepository.insertItems(order.id, input.items, trx);
 
+      const wentLow = [];
+
       for (const item of input.items) {
         const product = byId.get(item.productId);
 
-        await productsRepository.updateQuantities(
+        const updated = await productsRepository.updateQuantities(
           product.id,
           { quantityReserved: product.quantityReserved + item.quantity },
           trx,
         );
+
+        if (crossedLowStockThreshold(product, updated)) wentLow.push(updated);
       }
 
       await stockRepository.insertMovements(
@@ -148,8 +165,12 @@ function createOrdersService({
         trx,
       );
 
-      return ordersRepository.findDetailsById(order.id, trx);
+      return { order: await ordersRepository.findDetailsById(order.id, trx), wentLow };
     });
+
+    await emitLowStock(wentLow);
+
+    return order;
   }
 
   // Reguła 3: ponowne ustawienie tego samego statusu nic nie zmienia i nie jest błędem.
@@ -169,11 +190,14 @@ function createOrdersService({
 
   // Reguła 4: wysyłka zdejmuje stan i zwalnia rezerwację, wszystko w jednej transakcji.
   async function ship(id, { carrier, trackingNumber }, actor = null) {
-    return db.transaction(async (trx) => {
+    const { order, shipped } = await db.transaction(async (trx) => {
       const order = await ordersRepository.findByIdForUpdate(id, trx);
       if (!order) throw new NotFoundError("Order", "ORDER_NOT_FOUND");
 
-      if (order.status === "SHIPPED") return ordersRepository.findDetailsById(id, trx);
+      // Ponowna wysyłka nie zdejmuje stanu drugi raz i nie wysyła maila jeszcze raz.
+      if (order.status === "SHIPPED") {
+        return { order: await ordersRepository.findDetailsById(id, trx), shipped: false };
+      }
 
       assertTransitionAllowed(order.status, "SHIPPED");
 
@@ -214,8 +238,15 @@ function createOrdersService({
       await ordersRepository.createShipment({ orderId: id, carrier, trackingNumber, shippedAt }, trx);
       await ordersRepository.updateStatus(id, { status: "SHIPPED" }, trx);
 
-      return ordersRepository.findDetailsById(id, trx);
+      return { order: await ordersRepository.findDetailsById(id, trx), shipped: true };
     });
+
+    if (eventBus && shipped) {
+      const shop = await shopsRepository.findById(order.shopId);
+      eventBus.emit(ORDER_SHIPPED, { order, shop, shipment: order.shipment });
+    }
+
+    return order;
   }
 
   // Reguła 5: anulowanie zwalnia rezerwację. Sklep może anulować tylko zanim magazyn ruszy z kompletacją.

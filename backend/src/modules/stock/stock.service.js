@@ -1,7 +1,24 @@
 const { NotFoundError, ConflictError } = require("../../errors/AppError");
 const { assertOwnedByActor } = require("../../schemas/scope");
+const { crossedLowStockThreshold } = require("../../events/lowStock");
+const { STOCK_LOW } = require("../../events/events");
 
-function createStockService({ db, productsRepository, stockRepository, now = () => new Date() }) {
+function createStockService({
+  db,
+  productsRepository,
+  stockRepository,
+  shopsRepository,
+  eventBus = null,
+  now = () => new Date(),
+}) {
+  // Zdarzenie wychodzi dopiero po commicie – handler nie może zobaczyć wycofanego stanu.
+  async function emitLowStockIfCrossed(before, after) {
+    if (!eventBus || !crossedLowStockThreshold(before, after)) return;
+
+    const shop = await shopsRepository.findById(after.shopId);
+    eventBus.emit(STOCK_LOW, { product: after, shop });
+  }
+
   // Każda zmiana stanu: blokada wiersza produktu, zapis stanu i wpis w historii – w jednej transakcji.
   async function lockProduct(id, trx) {
     const [product] = await productsRepository.findByIdsForUpdate([id], trx);
@@ -38,7 +55,7 @@ function createStockService({ db, productsRepository, stockRepository, now = () 
 
   // Reguła 6: korekta nie może zejść poniżej tego, co jest już zarezerwowane pod zamówienia.
   async function adjust(productId, { newQuantityOnHand, reason }, actor = null) {
-    return db.transaction(async (trx) => {
+    const { before, after } = await db.transaction(async (trx) => {
       const product = await lockProduct(productId, trx);
 
       if (newQuantityOnHand < product.quantityReserved) {
@@ -73,8 +90,12 @@ function createStockService({ db, productsRepository, stockRepository, now = () 
         trx,
       );
 
-      return updated;
+      return { before: product, after: updated };
     });
+
+    await emitLowStockIfCrossed(before, after);
+
+    return after;
   }
 
   async function listMovements(productId, { page, pageSize }, actor = null) {
