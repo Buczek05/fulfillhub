@@ -171,7 +171,7 @@ Technicznie:
 **3.0**
 - [x] Backend + REST API + PostgreSQL, trwały zapis *(E1)*
 - [x] ≥ 3 encje, ≥ 1 relacja (mamy 7) *(E1)*
-- [x] CRUD głównych zasobów, poprawne metody HTTP i kody odpowiedzi *(E1: shops, products, orders; users w E2)*
+- [x] CRUD głównych zasobów, poprawne metody HTTP i kody odpowiedzi *(E1 + E2: users)*
 - [x] Warstwy: routes/controller, service, repository *(E0 szkielet, E1 wszystkie moduły)*
 - [x] DTO (mappery) oddzielające API od modelu bazy *(E1)*
 - [x] Walidacja wejścia (Zod) *(E1)*
@@ -179,13 +179,13 @@ Technicznie:
 - [x] ≥ 1 reguła biznesowa poza CRUD *(E1: reguły 1–7)*
 
 **4.0**
-- [ ] Authentication (JWT) + authorization
-- [ ] ≥ 2 role (mamy 3), ograniczenia endpointów zależne od roli i właściciela
-- [x] Paginacja (products, orders, users, movements) *(E1: shops, products, orders, movements; users w E2)*
+- [x] Authentication (JWT) + authorization *(E2)*
+- [x] ≥ 2 role (mamy 3), ograniczenia endpointów zależne od roli i właściciela *(E2)*
+- [x] Paginacja (products, orders, users, movements) *(E1 + E2: users)*
 - [x] Wyszukiwanie / filtrowanie *(E1: q, shopId, status, lowStock, sort)*
-- [ ] Swagger / OpenAPI
-- [x] ≥ 5 testów jednostkowych logiki biznesowej *(E1: 31 testów services)*
-- [ ] ≥ 3 testy integracyjne REST API
+- [x] Swagger / OpenAPI *(E2: /api/docs)*
+- [x] ≥ 5 testów jednostkowych logiki biznesowej *(E1–E2: 35 testów jednostkowych)*
+- [x] ≥ 3 testy integracyjne REST API *(E2: 28 testów na bazie testowej)*
 - [x] Migracje (Knex) *(E0: shops, users; E1: pozostałe tabele)*
 - [x] Konfiguracja przez env, brak sekretów w repo *(E0)*
 
@@ -195,7 +195,7 @@ Technicznie:
 - [ ] Frontend (Angular) komunikujący się z API, logowanie i auth po stronie frontu
 - [ ] Listowanie, dodawanie, edycja, usuwanie i obsługa błędów API w UI
 - [ ] Mechanizm asynchroniczny (event bus)
-- [ ] Testy najważniejszej logiki
+- [x] Testy najważniejszej logiki *(E2: 63 testy razem)*
 - [x] Docker Compose z osobnymi kontenerami dla backendu i bazy *(E0)*
 - [ ] README pozwalające uruchomić projekt innej osobie
 - [ ] Element rozszerzony z realnym użyciem (e-maile przez Mailpit)
@@ -215,7 +215,7 @@ Technicznie:
 |---|---|---|---|
 | **E0 – Setup** ✅ | 19.10 | monorepo, docker-compose (db + mailpit), szkielet Express wg architektury, config, Knex, pierwsza migracja, error handling, requestLogger | `docker compose up` stawia bazę, `/api/health` zwraca 200 |
 | **E1 – Rdzeń na 3.0** ✅ | 24.10 | migracje wszystkich tabel, moduły shops, products (CRUD), stock (receipts, adjustments, movements), orders (create z rezerwacją, status, ship, cancel), mappery, walidacja | sekcja 3.0 odhaczona, reguły 1–6 działają |
-| **E2 – Na 4.0** | 31.10 | auth JWT, role i własność danych, paginacja i filtry, Swagger, testy jednostkowe i integracyjne, seed demo | sekcja 4.0 odhaczona, `npm test` zielone |
+| **E2 – Na 4.0** ✅ | 31.10 | auth JWT, role i własność danych, paginacja i filtry, Swagger, testy jednostkowe i integracyjne, seed demo | sekcja 4.0 odhaczona, `npm test` zielone |
 | **E3 – Frontend** | 8.11 | Angular: logowanie, layout, wszystkie ekrany z sekcji 7, obsługa błędów | pełny scenariusz demo przeklikany w UI |
 | **E4 – Na 5.0** | 11.11 | event bus + maile (Mailpit), reguła 8, frontend i backend w compose, README, ERD, opcjonalnie CI | sekcja 5.0 odhaczona, czysty klon repo uruchamia się według README |
 | **E5 – Oddanie** | 13.11 | poprawki, tag `v1.0`, nagranie demo | wymagania formalne odhaczone |

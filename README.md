@@ -12,6 +12,8 @@ kompletuje, pakuje i wysyła ich zamówienia. Sklep widzi wyłącznie swoje prod
 | Backend | Node.js 22, Express 5, Zod 4 |
 | Baza danych | PostgreSQL 17, Knex (migracje) |
 | Frontend | Angular (dojdzie w etapie E3) |
+| Auth | JWT (jsonwebtoken) + bcrypt |
+| Dokumentacja API | OpenAPI 3 + Swagger UI |
 | Testy | Vitest + Supertest |
 | Poczta | Nodemailer → Mailpit |
 | Uruchomienie | Docker Compose |
@@ -29,6 +31,7 @@ Po starcie:
 | Adres | Co to |
 |---|---|
 | http://localhost:3000/api/health | healthcheck API |
+| http://localhost:3000/api/docs | Swagger UI – dokumentacja API |
 | http://localhost:8025 | Mailpit – podgląd wysłanych maili |
 | `localhost:5432` | PostgreSQL (użytkownik i baza z `.env`) |
 
@@ -52,12 +55,60 @@ npm run migrate
 npm run dev
 ```
 
+## Dane demo
+Po uruchomieniu wypełnij bazę danymi demo (2 sklepy, 18 produktów, 6 zamówień w różnych statusach,
+1 produkt poniżej progu):
+
+```bash
+docker compose exec backend npm run seed
+```
+
+Konta demo – hasło dla wszystkich: `haslo123` (to tylko dane demo, nie używaj ich poza lokalnym uruchomieniem):
+
+| E-mail | Rola | Co widzi |
+|---|---|---|
+| `admin@fulfillhub.local` | ADMIN | wszystko, łącznie z kontami użytkowników |
+| `magazyn@fulfillhub.local` | WAREHOUSE | produkty i zamówienia wszystkich sklepów, przyjęcia i korekty |
+| `sklep1@fulfillhub.local` | SHOP | wyłącznie dane sklepu „Papeteria Alfa” |
+| `sklep2@fulfillhub.local` | SHOP | wyłącznie dane sklepu „Kawiarnia Beta” |
+
+Logowanie zwraca token JWT, który dokładamy do każdego kolejnego żądania:
+
+```bash
+curl -s -X POST http://localhost:3000/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@fulfillhub.local","password":"haslo123"}'
+```
+
+## Role i dostęp do danych
+
+| Akcja | ADMIN | WAREHOUSE | SHOP |
+|---|---|---|---|
+| Konta użytkowników | ✅ | – | – |
+| Sklepy: dodawanie, edycja, usuwanie | ✅ | – | – |
+| Produkty: podgląd | wszystkie | wszystkie | tylko swoje |
+| Produkty: dodawanie, edycja, usuwanie | ✅ | – | tylko swoje |
+| Przyjęcia i korekty stanu | ✅ | ✅ | – |
+| Zamówienia: podgląd | wszystkie | wszystkie | tylko swoje |
+| Zamówienia: składanie | ✅ | – | tylko dla siebie |
+| Zamówienia: kompletacja i wysyłka | ✅ | ✅ | – |
+| Zamówienia: anulowanie | ✅ | ✅ | tylko swoje, tylko w statusie NEW |
+
+Brak tokenu → 401. Token jest, ale rola nie pozwala → 403. Zasób innego sklepu dla roli SHOP → **404**,
+a nie 403: nie zdradzamy, że taki rekord w ogóle istnieje.
+
 ## Testy
 
 ```bash
 cd backend
-npm test
+npm test                  # wszystko: jednostkowe + integracyjne
+npm run test:unit         # same jednostkowe (nie potrzebują bazy)
+npm run test:integration  # integracyjne (wymagają uruchomionej bazy)
 ```
+
+Testy integracyjne same tworzą bazę `fulfillhub_test` obok bazy aplikacji i uruchamiają na niej
+migracje, więc dane demo zostają nietknięte. Wymagają działającego kontenera `db`
+(`docker compose up -d db`).
 
 ## Przydatne komendy
 
@@ -84,11 +135,16 @@ backend/          – REST API (Express)
     app.js        – createApp(deps): buduje aplikację, nie uruchamia serwera
     server.js     – composition root: config, połączenie z bazą, listen
     config.js     – walidacja zmiennych środowiskowych (Zod)
+    buildApp.js   – składa aplikację z prawdziwych repositories (server i testy)
     db/           – knexfile, migracje, seedy
+    docs/         – specyfikacja OpenAPI
     errors/       – błędy domenowe (AppError i pochodne)
-    middleware/   – requestLogger, notFound, errorHandler
+    middleware/   – requestLogger, cors, authenticate, authorize, validate, notFound, errorHandler
     modules/      – moduły: routes → controller → service → repository
-  tests/          – testy jednostkowe i integracyjne
+    schemas/      – wspólne schematy Zod i zakres danych dla roli SHOP
+  tests/
+    unit/         – reguły biznesowe na fake repositories
+    integration/  – Supertest na testowej bazie PostgreSQL
 docs/PLAN.md      – pełny plan projektu: model danych, reguły, API, etapy
 docker-compose.yml
 ```
@@ -97,7 +153,12 @@ docker-compose.yml
 
 | Metoda | Ścieżka | Opis |
 |---|---|---|
-| GET | `/api/health` | healthcheck (200 / 503, gdy baza nie odpowiada) |
+| GET | `/api/health` | healthcheck (200 / 503, gdy baza nie odpowiada) — bez tokenu |
+| GET | `/api/docs` | Swagger UI — bez tokenu |
+| POST | `/api/auth/login` | logowanie, zwraca `accessToken` i dane użytkownika — bez tokenu |
+| GET | `/api/auth/me` | zalogowany użytkownik |
+| GET POST | `/api/users` | konta użytkowników (ADMIN) |
+| GET PATCH DELETE | `/api/users/:id` | szczegóły · edycja · dezaktywacja (ADMIN) |
 | GET POST | `/api/shops` | lista z paginacją i wyszukiwaniem · dodanie sklepu |
 | GET PATCH DELETE | `/api/shops/:id` | szczegóły · edycja · usunięcie (409, gdy sklep ma produkty lub zamówienia) |
 | GET POST | `/api/products` | lista (`page`, `pageSize`, `q`, `shopId`, `lowStock`, `sort`) · dodanie produktu |
@@ -110,8 +171,10 @@ docker-compose.yml
 | PATCH | `/api/orders/:id/status` | `PICKING` / `PACKED` |
 | POST | `/api/orders/:id/ship` | wysyłka: zdejmuje stan, tworzy przesyłkę |
 | POST | `/api/orders/:id/cancel` | anulowanie: zwalnia rezerwację |
+| GET | `/api/dashboard/summary` | zamówienia per status, liczba produktów z niskim stanem, ostatnie zamówienia |
 
-Uwierzytelnianie (JWT) i role dochodzą w etapie E2 – na razie endpointy są otwarte.
+Poza `/api/health`, `/api/docs` i `/api/auth/login` każdy endpoint wymaga nagłówka
+`Authorization: Bearer <token>`. Pełna specyfikacja: [Swagger UI](http://localhost:3000/api/docs).
 
 ## Reguły biznesowe
 Wszystkie siedzą w services i mają testy jednostkowe (`backend/tests/unit`):
@@ -145,7 +208,7 @@ Projekt powstaje etapami opisanymi w [`docs/PLAN.md`](docs/PLAN.md) (sekcja 11).
 
 - [x] **E0 – Setup**: monorepo, Docker Compose (db + mailpit + backend), szkielet Express, config, Knex, pierwsza migracja, obsługa błędów
 - [x] **E1 – Rdzeń**: sklepy, produkty, stany magazynowe, zamówienia z rezerwacją stanu
-- [ ] **E2 – Auth i jakość**: JWT, role, paginacja, Swagger, testy, seed
+- [x] **E2 – Auth i jakość**: JWT, role, własność danych, users, Swagger, testy integracyjne, seed demo
 - [ ] **E3 – Frontend**: Angular
 - [ ] **E4 – Asynchroniczność**: event bus, maile, README, ERD
 - [ ] **E5 – Oddanie**: tag `v1.0`, demo
