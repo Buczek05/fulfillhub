@@ -52,6 +52,7 @@ function createApp({
   dashboardRepository,
   tokenService,
   passwordHasher,
+  eventBus = null,
   now = () => new Date(),
 }) {
   const app = express();
@@ -65,13 +66,21 @@ function createApp({
   const usersService = createUsersService({ usersRepository, shopsRepository, passwordHasher });
   const shopsService = createShopsService({ shopsRepository, productsRepository, ordersRepository });
   const productsService = createProductsService({ productsRepository, shopsRepository });
-  const stockService = createStockService({ db, productsRepository, stockRepository, now });
+  const stockService = createStockService({
+    db,
+    productsRepository,
+    stockRepository,
+    shopsRepository,
+    eventBus,
+    now,
+  });
   const ordersService = createOrdersService({
     db,
     ordersRepository,
     productsRepository,
     shopsRepository,
     stockRepository,
+    eventBus,
     now,
   });
   const dashboardService = createDashboardService({ dashboardRepository });
