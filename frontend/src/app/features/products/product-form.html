@@ -1,0 +1,61 @@
+<h1>{{ isEdit ? 'Edycja produktu' : 'Nowy produkt' }}</h1>
+
+<mat-card>
+  <mat-card-content>
+    <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+      @if (!isShop) {
+        <mat-form-field appearance="outline">
+          <mat-label>Sklep</mat-label>
+          <mat-select formControlName="shopId">
+            @for (shop of shopList(); track shop.id) {
+              <mat-option [value]="shop.id">{{ shop.name }}</mat-option>
+            }
+          </mat-select>
+          @if (form.controls.shopId.touched && form.controls.shopId.invalid) {
+            <mat-error>Wybierz sklep.</mat-error>
+          }
+        </mat-form-field>
+      }
+
+      <mat-form-field appearance="outline">
+        <mat-label>SKU</mat-label>
+        <input matInput formControlName="sku" />
+        @if (isEdit) {
+          <mat-hint>SKU nie można zmienić po utworzeniu produktu.</mat-hint>
+        }
+        @if (serverErrors()['sku']) {
+          <mat-error>{{ serverErrors()['sku'] }}</mat-error>
+        } @else if (form.controls.sku.touched && form.controls.sku.invalid) {
+          <mat-error>SKU jest wymagane.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nazwa</mat-label>
+        <input matInput formControlName="name" />
+        @if (form.controls.name.touched && form.controls.name.invalid) {
+          <mat-error>Nazwa jest wymagana.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>EAN (opcjonalnie)</mat-label>
+        <input matInput formControlName="ean" />
+        @if (serverErrors()['ean']) {
+          <mat-error>{{ serverErrors()['ean'] }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Próg niskiego stanu</mat-label>
+        <input matInput type="number" formControlName="lowStockThreshold" min="0" />
+        <mat-hint>Poniżej tej wartości produkt trafia na listę „niski stan”.</mat-hint>
+      </mat-form-field>
+
+      <div class="form__actions">
+        <button mat-button type="button" (click)="cancel()">Anuluj</button>
+        <button mat-flat-button type="submit" [disabled]="saving()">Zapisz</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

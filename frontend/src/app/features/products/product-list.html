@@ -1,0 +1,94 @@
+<h1>Produkty</h1>
+
+<div class="toolbar">
+  <mat-form-field appearance="outline">
+    <mat-label>Szukaj (SKU lub nazwa)</mat-label>
+    <input matInput [(ngModel)]="search" (keyup.enter)="applyFilters()" />
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
+  @if (!isShop) {
+    <mat-form-field appearance="outline">
+      <mat-label>Sklep</mat-label>
+      <mat-select [(ngModel)]="shopId" (selectionChange)="applyFilters()">
+        <mat-option [value]="null">Wszystkie</mat-option>
+        @for (shop of shopList(); track shop.id) {
+          <mat-option [value]="shop.id">{{ shop.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  }
+
+  <mat-checkbox [(ngModel)]="lowStock" (change)="applyFilters()">Tylko niski stan</mat-checkbox>
+
+  <button mat-stroked-button (click)="applyFilters()">Filtruj</button>
+
+  <span class="toolbar__spacer"></span>
+
+  @if (canEdit) {
+    <button mat-flat-button (click)="add()">
+      <mat-icon>add</mat-icon>
+      Nowy produkt
+    </button>
+  }
+</div>
+
+<mat-card class="table-card">
+  @if (rows().length === 0 && !loading()) {
+    <p class="empty">Brak produktów spełniających kryteria.</p>
+  } @else {
+    <table mat-table [dataSource]="rows()">
+      <ng-container matColumnDef="sku">
+        <th mat-header-cell *matHeaderCellDef>SKU</th>
+        <td mat-cell *matCellDef="let product">
+          <a [routerLink]="['/produkty', product.id]">{{ product.sku }}</a>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Nazwa</th>
+        <td mat-cell *matCellDef="let product">{{ product.name }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="quantityOnHand">
+        <th mat-header-cell *matHeaderCellDef>Na stanie</th>
+        <td mat-cell *matCellDef="let product">{{ product.quantityOnHand }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="quantityReserved">
+        <th mat-header-cell *matHeaderCellDef>Zarezerwowane</th>
+        <td mat-cell *matCellDef="let product">{{ product.quantityReserved }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="quantityAvailable">
+        <th mat-header-cell *matHeaderCellDef>Dostępne</th>
+        <td mat-cell *matCellDef="let product">
+          <span [class.low-stock]="product.isLowStock">{{ product.quantityAvailable }}</span>
+          @if (product.isLowStock) {
+            <mat-icon class="low-stock" matTooltip="Poniżej progu">warning</mat-icon>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let product">
+          <a mat-icon-button [routerLink]="['/produkty', product.id]" aria-label="Szczegóły">
+            <mat-icon>chevron_right</mat-icon>
+          </a>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+  }
+
+  <mat-paginator
+    [length]="total()"
+    [pageSize]="pageSize()"
+    [pageIndex]="page() - 1"
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    (page)="onPage($event)"
+  />
+</mat-card>

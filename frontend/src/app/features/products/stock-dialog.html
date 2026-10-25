@@ -1,0 +1,49 @@
+<h2 mat-dialog-title>{{ isReceipt ? 'Przyjęcie dostawy' : 'Korekta stanu' }}</h2>
+
+<mat-dialog-content>
+  <p class="dialog-subtitle">
+    {{ data.product.sku }} — {{ data.product.name }}<br />
+    Na stanie: {{ data.product.quantityOnHand }}, zarezerwowane: {{ data.product.quantityReserved }}
+  </p>
+
+  <form [formGroup]="form" class="form">
+    @if (isReceipt) {
+      <mat-form-field appearance="outline">
+        <mat-label>Przyjmowana ilość</mat-label>
+        <input matInput type="number" formControlName="quantity" min="1" />
+        @if (form.controls.quantity.touched && form.controls.quantity.invalid) {
+          <mat-error>Podaj ilość większą od zera.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Powód / nr dostawy (opcjonalnie)</mat-label>
+        <input matInput formControlName="reason" />
+      </mat-form-field>
+    } @else {
+      <mat-form-field appearance="outline">
+        <mat-label>Nowy stan na magazynie</mat-label>
+        <input matInput type="number" formControlName="newQuantityOnHand" min="0" />
+        <mat-hint>
+          Nie może być mniejszy niż ilość zarezerwowana ({{ data.product.quantityReserved }}).
+        </mat-hint>
+        @if (form.controls.newQuantityOnHand.touched && form.controls.newQuantityOnHand.invalid) {
+          <mat-error>Podaj liczbę nieujemną.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Powód korekty</mat-label>
+        <input matInput formControlName="reason" />
+        @if (form.controls.reason.touched && form.controls.reason.invalid) {
+          <mat-error>Powód jest wymagany.</mat-error>
+        }
+      </mat-form-field>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="dialogRef.close()">Anuluj</button>
+  <button mat-flat-button (click)="submit()" [disabled]="saving()">Zapisz</button>
+</mat-dialog-actions>
