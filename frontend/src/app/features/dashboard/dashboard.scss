@@ -1,0 +1,32 @@
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.tile {
+  &__value {
+    margin: 0;
+    font: var(--mat-sys-display-small);
+  }
+
+  &__label {
+    margin: 0.25rem 0 0;
+    font: var(--mat-sys-body-small);
+    opacity: 0.75;
+  }
+
+  &--low-stock {
+    background: var(--mat-sys-error-container);
+    color: var(--mat-sys-on-error-container);
+  }
+}
+
+.recent table {
+  width: 100%;
+}
+
+.empty {
+  opacity: 0.7;
+}

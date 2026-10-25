@@ -1,0 +1,37 @@
+.login {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+
+  &__card {
+    width: min(100%, 400px);
+    overflow: hidden;
+  }
+
+  &__header {
+    padding-top: 1.5rem;
+  }
+
+  &__logo {
+    color: var(--mat-sys-primary);
+    margin-right: 0.75rem;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-top: 0.5rem;
+  }
+
+  button {
+    margin-top: 0.5rem;
+  }
+
+  &__error {
+    margin: 0 0 0.5rem;
+    color: var(--mat-sys-error);
+    font: var(--mat-sys-body-small);
+  }
+}
