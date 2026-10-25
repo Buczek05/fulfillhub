@@ -1,0 +1,55 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Edycja konta' : 'Nowe konto' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="form">
+    <mat-form-field appearance="outline">
+      <mat-label>E-mail</mat-label>
+      <input matInput type="email" formControlName="email" />
+      @if (form.controls.email.touched && form.controls.email.invalid) {
+        <mat-error>Podaj poprawny adres e-mail.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ isEdit ? 'Nowe hasło (opcjonalnie)' : 'Hasło' }}</mat-label>
+      <input matInput type="password" formControlName="password" autocomplete="new-password" />
+      <mat-hint>Minimum 8 znaków.</mat-hint>
+      @if (form.controls.password.touched && form.controls.password.invalid) {
+        <mat-error>Hasło musi mieć co najmniej 8 znaków.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Rola</mat-label>
+      <mat-select formControlName="role">
+        @for (value of roles; track value) {
+          <mat-option [value]="value">{{ roleLabels[value] }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    @if (needsShop) {
+      <mat-form-field appearance="outline">
+        <mat-label>Sklep</mat-label>
+        <mat-select formControlName="shopId">
+          @for (shop of data.shops; track shop.id) {
+            <mat-option [value]="shop.id">{{ shop.name }}</mat-option>
+          }
+        </mat-select>
+        <mat-hint>Konto sklepu musi być przypisane do sklepu.</mat-hint>
+        @if (form.controls.shopId.touched && form.controls.shopId.invalid) {
+          <mat-error>Wybierz sklep.</mat-error>
+        }
+      </mat-form-field>
+    }
+
+    @if (isEdit) {
+      <mat-slide-toggle formControlName="isActive">Konto aktywne</mat-slide-toggle>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="dialogRef.close(false)">Anuluj</button>
+  <button mat-flat-button (click)="submit()" [disabled]="saving()">Zapisz</button>
+</mat-dialog-actions>

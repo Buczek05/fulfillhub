@@ -1,0 +1,79 @@
+<h1>Użytkownicy</h1>
+
+<div class="toolbar">
+  <mat-form-field appearance="outline">
+    <mat-label>Szukaj (e-mail)</mat-label>
+    <input matInput [(ngModel)]="search" (keyup.enter)="applyFilters()" />
+    <mat-icon matSuffix>search</mat-icon>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Rola</mat-label>
+    <mat-select [(ngModel)]="role" (selectionChange)="applyFilters()">
+      <mat-option [value]="null">Wszystkie</mat-option>
+      @for (value of roles; track value) {
+        <mat-option [value]="value">{{ roleLabels[value] }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <span class="toolbar__spacer"></span>
+
+  <button mat-flat-button (click)="openDialog()">
+    <mat-icon>person_add</mat-icon>
+    Nowe konto
+  </button>
+</div>
+
+<mat-card class="table-card">
+  @if (rows().length === 0) {
+    <p class="empty">Brak kont spełniających kryteria.</p>
+  } @else {
+    <table mat-table [dataSource]="rows()">
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>E-mail</th>
+        <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef>Rola</th>
+        <td mat-cell *matCellDef="let user">{{ roleLabel(user.role) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="shop">
+        <th mat-header-cell *matHeaderCellDef>Sklep</th>
+        <td mat-cell *matCellDef="let user">{{ shopName(user.shopId) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="isActive">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let user">{{ user.isActive ? 'Aktywne' : 'Nieaktywne' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let user">
+          <button mat-icon-button (click)="openDialog(user)" aria-label="Edytuj">
+            <mat-icon>edit</mat-icon>
+          </button>
+          @if (user.isActive) {
+            <button mat-icon-button (click)="deactivate(user)" aria-label="Dezaktywuj">
+              <mat-icon>person_off</mat-icon>
+            </button>
+          }
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns"></tr>
+    </table>
+  }
+
+  <mat-paginator
+    [length]="total()"
+    [pageSize]="pageSize()"
+    [pageIndex]="page() - 1"
+    [pageSizeOptions]="[10, 25, 50]"
+    (page)="onPage($event)"
+  />
+</mat-card>

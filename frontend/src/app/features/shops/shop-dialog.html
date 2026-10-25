@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>{{ shop ? 'Edycja sklepu' : 'Nowy sklep' }}</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="form" class="form">
+    <mat-form-field appearance="outline">
+      <mat-label>Nazwa</mat-label>
+      <input matInput formControlName="name" />
+      @if (form.controls.name.touched && form.controls.name.invalid) {
+        <mat-error>Nazwa jest wymagana.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>E-mail kontaktowy</mat-label>
+      <input matInput type="email" formControlName="contactEmail" />
+      @if (form.controls.contactEmail.touched && form.controls.contactEmail.invalid) {
+        <mat-error>Podaj poprawny adres e-mail.</mat-error>
+      }
+    </mat-form-field>
+
+    @if (shop) {
+      <mat-slide-toggle formControlName="isActive">Sklep aktywny</mat-slide-toggle>
+    }
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="dialogRef.close(false)">Anuluj</button>
+  <button mat-flat-button (click)="submit()" [disabled]="saving()">Zapisz</button>
+</mat-dialog-actions>
