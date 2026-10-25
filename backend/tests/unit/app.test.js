@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import request from "supertest";
 
-import { createApp } from "../src/app.js";
+import { createApp } from "../../src/app.js";
 
 // Fake bazy – szkielet aplikacji testujemy bez prawdziwego Postgresa.
 const dbUp = { raw: async () => [{ "?column?": 1 }] };
