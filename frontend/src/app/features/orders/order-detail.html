@@ -1,0 +1,117 @@
+@if (order(); as item) {
+  <h1>
+    Zamówienie {{ item.externalRef }}
+    <span class="status status--{{ item.status.toLowerCase() }}">
+      {{ statusLabels[item.status] }}
+    </span>
+  </h1>
+
+  <div class="page-actions">
+    @if (canPick) {
+      <button mat-flat-button [disabled]="busy()" (click)="changeStatus('PICKING')">
+        <mat-icon>playlist_add_check</mat-icon>
+        Rozpocznij kompletację
+      </button>
+    }
+    @if (canPack) {
+      <button mat-flat-button [disabled]="busy()" (click)="changeStatus('PACKED')">
+        <mat-icon>inventory</mat-icon>
+        Oznacz jako spakowane
+      </button>
+    }
+    @if (canShip) {
+      <button mat-flat-button [disabled]="busy()" (click)="ship()">
+        <mat-icon>local_shipping</mat-icon>
+        Wyślij
+      </button>
+    }
+    @if (canCancel) {
+      <button mat-stroked-button [disabled]="busy()" (click)="cancel()">
+        <mat-icon>cancel</mat-icon>
+        Anuluj zamówienie
+      </button>
+    }
+  </div>
+
+  <mat-card class="card-gap">
+    <mat-card-content>
+      <dl class="details">
+        <div>
+          <dt>Odbiorca</dt>
+          <dd>{{ item.recipientName }}</dd>
+        </div>
+        <div>
+          <dt>Adres</dt>
+          <dd>{{ item.recipientAddress }}</dd>
+        </div>
+        <div>
+          <dt>E-mail odbiorcy</dt>
+          <dd>{{ item.recipientEmail ?? '—' }}</dd>
+        </div>
+        <div>
+          <dt>Złożone</dt>
+          <dd>{{ item.createdAt | date: 'dd.MM.yyyy HH:mm' }}</dd>
+        </div>
+        @if (item.cancelledAt) {
+          <div>
+            <dt>Anulowane</dt>
+            <dd>{{ item.cancelledAt | date: 'dd.MM.yyyy HH:mm' }}</dd>
+          </div>
+        }
+      </dl>
+    </mat-card-content>
+  </mat-card>
+
+  @if (item.shipment; as shipment) {
+    <mat-card class="card-gap">
+      <mat-card-header>
+        <mat-card-title>Przesyłka</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <dl class="details">
+          <div>
+            <dt>Przewoźnik</dt>
+            <dd>{{ shipment.carrier }}</dd>
+          </div>
+          <div>
+            <dt>Numer przesyłki</dt>
+            <dd>{{ shipment.trackingNumber }}</dd>
+          </div>
+          <div>
+            <dt>Wysłano</dt>
+            <dd>{{ shipment.shippedAt | date: 'dd.MM.yyyy HH:mm' }}</dd>
+          </div>
+        </dl>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <mat-card class="table-card">
+    <mat-card-header>
+      <mat-card-title>Pozycje</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <table mat-table [dataSource]="item.items">
+        <ng-container matColumnDef="sku">
+          <th mat-header-cell *matHeaderCellDef>SKU</th>
+          <td mat-cell *matCellDef="let row">
+            <a [routerLink]="['/produkty', row.productId]">{{ row.sku }}</a>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Nazwa</th>
+          <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="quantity">
+          <th mat-header-cell *matHeaderCellDef>Ilość</th>
+          <td mat-cell *matCellDef="let row">{{ row.quantity }}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+}

@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>Wysyłka zamówienia {{ order.externalRef }}</h2>
+
+<mat-dialog-content>
+  <p class="dialog-subtitle">
+    Wysyłka zdejmie towar ze stanu i zwolni rezerwację.
+  </p>
+
+  <form [formGroup]="form" class="form">
+    <mat-form-field appearance="outline">
+      <mat-label>Przewoźnik</mat-label>
+      <input matInput formControlName="carrier" />
+      @if (form.controls.carrier.touched && form.controls.carrier.invalid) {
+        <mat-error>Przewoźnik jest wymagany.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Numer przesyłki</mat-label>
+      <input matInput formControlName="trackingNumber" />
+      @if (form.controls.trackingNumber.touched && form.controls.trackingNumber.invalid) {
+        <mat-error>Numer przesyłki jest wymagany.</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="dialogRef.close()">Anuluj</button>
+  <button mat-flat-button (click)="submit()" [disabled]="saving()">Wyślij</button>
+</mat-dialog-actions>

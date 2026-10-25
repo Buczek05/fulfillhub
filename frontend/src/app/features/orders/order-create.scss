@@ -1,0 +1,17 @@
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+
+  &__product {
+    flex: 1 1 320px;
+  }
+
+  &__quantity {
+    width: 110px;
+  }
+
+  button {
+    margin-top: 0.5rem;
+  }
+}
