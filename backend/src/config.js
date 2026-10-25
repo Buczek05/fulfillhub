@@ -1,5 +1,8 @@
-require("dotenv").config({ quiet: true });
+const path = require("node:path");
 const { z } = require("zod");
+
+// Ścieżka liczona od pliku, nie od cwd: CLI Knexa uruchamia się z katalogu src/db.
+require("dotenv").config({ path: path.join(__dirname, "..", ".env"), quiet: true });
 
 // Jedyne miejsce, które czyta process.env. Brak wymaganej zmiennej przerywa start aplikacji.
 const envSchema = z.object({
