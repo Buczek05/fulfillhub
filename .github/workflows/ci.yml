@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  backend:
+    name: Backend – testy
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: fulfillhub
+          POSTGRES_PASSWORD: fulfillhub
+          POSTGRES_DB: fulfillhub
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U fulfillhub"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgres://fulfillhub:fulfillhub@localhost:5432/fulfillhub
+      JWT_SECRET: ci-secret-at-least-16-chars
+      NODE_ENV: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Instalacja zależności
+        working-directory: backend
+        run: npm ci
+
+      - name: Migracje
+        working-directory: backend
+        run: npm run migrate
+
+      # Testy integracyjne same zakładają bazę fulfillhub_test i migrują ją.
+      - name: Testy
+        working-directory: backend
+        run: npm test
+
+  frontend:
+    name: Frontend – build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Instalacja zależności
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build
+        working-directory: frontend
+        run: npm run build
