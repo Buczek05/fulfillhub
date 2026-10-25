@@ -6,6 +6,11 @@ Autor: Kacper Bukowski.
 Mini-WMS dla magazynu fulfillment: sklepy internetowe trzymają towar w magazynie, a magazyn
 kompletuje, pakuje i wysyła ich zamówienia. Sklep widzi wyłącznie swoje produkty, stany i zamówienia.
 
+## Dokumentacja
+- [`docs/ERD.md`](docs/ERD.md) — model danych, ograniczenia bazy, cykl życia zamówienia
+- [`docs/PLAN.md`](docs/PLAN.md) — pełny plan projektu i checklisty wymagań
+- Swagger UI — http://localhost:3000/api/docs (po uruchomieniu)
+
 ## Technologie
 | Warstwa | Technologia |
 |---|---|
@@ -175,6 +180,7 @@ backend/          – REST API (Express)
     db/           – knexfile, migracje, seedy
     docs/         – specyfikacja OpenAPI
     errors/       – błędy domenowe (AppError i pochodne)
+    events/       – event bus, handlery, wysyłka maili
     middleware/   – requestLogger, cors, authenticate, authorize, validate, notFound, errorHandler
     modules/      – moduły: routes → controller → service → repository
     schemas/      – wspólne schematy Zod i zakres danych dla roli SHOP
@@ -182,6 +188,7 @@ backend/          – REST API (Express)
     unit/         – reguły biznesowe na fake repositories
     integration/  – Supertest na testowej bazie PostgreSQL
 docs/PLAN.md      – pełny plan projektu: model danych, reguły, API, etapy
+docs/ERD.md       – model danych (ERD), ograniczenia bazy, cykl życia zamówienia
 docker-compose.yml
 ```
 
@@ -226,6 +233,25 @@ Wszystkie siedzą w services i mają testy jednostkowe (`backend/tests/unit`):
 6. **Korekta stanu** – nie może zejść poniżej rezerwacji (409 `STOCK_BELOW_RESERVED`), wymaga powodu.
 7. **Usuwanie produktu** – produkt z historią zostaje (409 `PRODUCT_IN_USE`).
 
+## Powiadomienia asynchroniczne
+Reguły biznesowe nie wysyłają maili same — emitują zdarzenia domenowe, i to **dopiero po commicie
+transakcji**, żeby handler nie zobaczył stanu, który zaraz zniknie przy rollbacku. Szyna to zwykły
+`EventEmitter` (`backend/src/events/eventBus.js`); handlery działają asynchronicznie, a błąd handlera
+jest logowany i nie psuje requestu — nieudany mail nie unieważnia wysłanej paczki.
+
+| Zdarzenie | Kiedy | Co się dzieje |
+|---|---|---|
+| `order.shipped` | po wysyłce zamówienia | mail do sklepu z numerem przesyłki, a jeśli odbiorca podał adres — także do niego |
+| `stock.low` | gdy stan dostępny **przekroczy** próg w dół | mail do sklepu i na skrzynkę magazynu |
+
+Alert niskiego stanu leci raz, w momencie przekroczenia progu — nie przy każdej kolejnej zmianie
+stanu, który już jest niski (porównujemy stan przed i po).
+
+Maile trafiają do **Mailpita**, więc nic nie wychodzi na świat. Podgląd: http://localhost:8025.
+
+Żeby zobaczyć to na żywo: zaloguj się jako magazynier, przeprowadź zamówienie do statusu
+„Spakowane”, wyślij je — i odśwież Mailpita.
+
 ## Format odpowiedzi błędu
 Każdy błąd API ma ten sam kształt, a `code` jest stałym kontraktem:
 
@@ -246,5 +272,5 @@ Projekt powstaje etapami opisanymi w [`docs/PLAN.md`](docs/PLAN.md) (sekcja 11).
 - [x] **E1 – Rdzeń**: sklepy, produkty, stany magazynowe, zamówienia z rezerwacją stanu
 - [x] **E2 – Auth i jakość**: JWT, role, własność danych, users, Swagger, testy integracyjne, seed demo
 - [x] **E3 – Frontend**: Angular — logowanie, pulpit, produkty, zamówienia, sklepy, użytkownicy
-- [ ] **E4 – Asynchroniczność**: event bus, maile, README, ERD
+- [x] **E4 – Asynchroniczność**: event bus, maile przez Mailpit, alert niskiego stanu, ERD, CI
 - [ ] **E5 – Oddanie**: tag `v1.0`, demo

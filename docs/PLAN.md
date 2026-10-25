@@ -80,7 +80,7 @@ Na 5.0 wymagane są min. 3 reguły. Mamy ich więcej, ale na demo pokazujemy reg
   - `order.shipped` → mail do sklepu (`shops.contact_email`) z numerem przesyłki oraz, jeśli podano, do odbiorcy (`recipient_email`).
   - `stock.low` → mail do sklepu i do magazynu z listą produktów.
 - **Element rozszerzony: wysyłanie e-maili** (Nodemailer + Mailpit w docker-compose). Ma realne zastosowanie i daje się pokazać na demo w UI Mailpita.
-- Opcjonalnie, jeśli zostanie czas: **CI w GitHub Actions** (lint + testy na każdy push).
+- **CI w GitHub Actions** (`.github/workflows/ci.yml`): testy backendu na Postgresie i build frontendu przy każdym pushu. ✅
 
 ## 6. REST API
 Prefiks `/api`. Wszystko oprócz logowania wymaga `Authorization: Bearer <token>`.
@@ -191,21 +191,21 @@ Technicznie:
 
 **5.0**
 - [x] ≥ 5 powiązanych encji w spójnym modelu *(E1: 7 tabel)*
-- [x] ≥ 3 reguły biznesowe *(E1: reguły 1–7; reguła 8 w E4)*
+- [x] ≥ 3 reguły biznesowe *(E1: reguły 1–7; E4: reguła 8)*
 - [x] Frontend (Angular) komunikujący się z API, logowanie i auth po stronie frontu *(E3)*
 - [x] Listowanie, dodawanie, edycja, usuwanie i obsługa błędów API w UI *(E3)*
-- [ ] Mechanizm asynchroniczny (event bus)
-- [x] Testy najważniejszej logiki *(E2: 63 testy razem)*
+- [x] Mechanizm asynchroniczny (event bus) *(E4)*
+- [x] Testy najważniejszej logiki *(E4: 74 testy razem)*
 - [x] Docker Compose z osobnymi kontenerami dla backendu i bazy *(E0)*
-- [ ] README pozwalające uruchomić projekt innej osobie
-- [ ] Element rozszerzony z realnym użyciem (e-maile przez Mailpit)
+- [x] README pozwalające uruchomić projekt innej osobie *(E4)*
+- [x] Element rozszerzony z realnym użyciem (e-maile przez Mailpit) *(E4)*
 
 **Wymagania formalne**
 - [ ] Repo GitHub *(jest: Buczek05/fulfillhub)*, tag wersji oddawanej (np. `v1.0`)
 - [ ] Historia commitów pokazująca rozwój
 - [ ] README: opis, technologie, instrukcja uruchomienia, główne funkcjonalności
-- [ ] ERD (Mermaid w `docs/` i w README)
-- [ ] Dokumentacja REST API (Swagger + link w README)
+- [x] ERD (Mermaid w `docs/` i w README) *(E4: docs/ERD.md)*
+- [x] Dokumentacja REST API (Swagger + link w README) *(E2/E4)*
 - [ ] Demo video 3–5 min
 
 ## 11. Etapy realizacji
@@ -217,7 +217,7 @@ Technicznie:
 | **E1 – Rdzeń na 3.0** ✅ | 24.10 | migracje wszystkich tabel, moduły shops, products (CRUD), stock (receipts, adjustments, movements), orders (create z rezerwacją, status, ship, cancel), mappery, walidacja | sekcja 3.0 odhaczona, reguły 1–6 działają |
 | **E2 – Na 4.0** ✅ | 31.10 | auth JWT, role i własność danych, paginacja i filtry, Swagger, testy jednostkowe i integracyjne, seed demo | sekcja 4.0 odhaczona, `npm test` zielone |
 | **E3 – Frontend** ✅ | 8.11 | Angular: logowanie, layout, wszystkie ekrany z sekcji 7, obsługa błędów | pełny scenariusz demo przeklikany w UI |
-| **E4 – Na 5.0** | 11.11 | event bus + maile (Mailpit), reguła 8, frontend i backend w compose, README, ERD, opcjonalnie CI | sekcja 5.0 odhaczona, czysty klon repo uruchamia się według README |
+| **E4 – Na 5.0** ✅ | 11.11 | event bus + maile (Mailpit), reguła 8, frontend i backend w compose, README, ERD, opcjonalnie CI | sekcja 5.0 odhaczona, czysty klon repo uruchamia się według README |
 | **E5 – Oddanie** | 13.11 | poprawki, tag `v1.0`, nagranie demo | wymagania formalne odhaczone |
 
 ## 12. Scenariusz demo (3–5 min)
