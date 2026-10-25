@@ -1,0 +1,39 @@
+.shell {
+  height: 100vh;
+
+  &__nav {
+    width: 240px;
+    border-right: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1.1rem 1.25rem;
+    font: var(--mat-sys-title-medium);
+    color: var(--mat-sys-primary);
+  }
+
+  &__toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--mat-sys-surface);
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  &__spacer {
+    flex: 1 1 auto;
+  }
+
+  &__role {
+    font: var(--mat-sys-label-small);
+    opacity: 0.7;
+  }
+
+  &__content {
+    padding: 1.5rem;
+    max-width: 1280px;
+  }
+}
