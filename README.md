@@ -9,6 +9,7 @@ kompletuje, pakuje i wysyła ich zamówienia. Sklep widzi wyłącznie swoje prod
 ## Dokumentacja
 - [`docs/ERD.md`](docs/ERD.md) — model danych, ograniczenia bazy, cykl życia zamówienia
 - [`docs/PLAN.md`](docs/PLAN.md) — pełny plan projektu i checklisty wymagań
+- [`docs/DEMO.md`](docs/DEMO.md) — scenariusz nagrania demo
 - Swagger UI — http://localhost:3000/api/docs (po uruchomieniu)
 
 ## Technologie
@@ -273,4 +274,4 @@ Projekt powstaje etapami opisanymi w [`docs/PLAN.md`](docs/PLAN.md) (sekcja 11).
 - [x] **E2 – Auth i jakość**: JWT, role, własność danych, users, Swagger, testy integracyjne, seed demo
 - [x] **E3 – Frontend**: Angular — logowanie, pulpit, produkty, zamówienia, sklepy, użytkownicy
 - [x] **E4 – Asynchroniczność**: event bus, maile przez Mailpit, alert niskiego stanu, ERD, CI
-- [ ] **E5 – Oddanie**: tag `v1.0`, demo
+- [x] **E5 – Oddanie**: tag `v1.0`, CI, scenariusz demo (`docs/DEMO.md`)

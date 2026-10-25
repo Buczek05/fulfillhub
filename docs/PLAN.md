@@ -201,12 +201,12 @@ Technicznie:
 - [x] Element rozszerzony z realnym użyciem (e-maile przez Mailpit) *(E4)*
 
 **Wymagania formalne**
-- [ ] Repo GitHub *(jest: Buczek05/fulfillhub)*, tag wersji oddawanej (np. `v1.0`)
-- [ ] Historia commitów pokazująca rozwój
-- [ ] README: opis, technologie, instrukcja uruchomienia, główne funkcjonalności
+- [x] Repo GitHub *(Buczek05/fulfillhub)*, tag wersji oddawanej `v1.0` *(E5)*
+- [x] Historia commitów pokazująca rozwój *(49 commitów, E0–E5)*
+- [x] README: opis, technologie, instrukcja uruchomienia, główne funkcjonalności
 - [x] ERD (Mermaid w `docs/` i w README) *(E4: docs/ERD.md)*
 - [x] Dokumentacja REST API (Swagger + link w README) *(E2/E4)*
-- [ ] Demo video 3–5 min
+- [ ] Demo video 3–5 min *(scenariusz gotowy: `docs/DEMO.md`; nagranie zostaje do zrobienia)*
 
 ## 11. Etapy realizacji
 **Termin: 14.11.2026** – przedostatnie zajęcia projektowe ZTPAI (online, 10:45). Projekt ma być oddany przed zajęciami, czyli najpóźniej 13.11 wieczorem: tag `v1.0`, README i nagrane demo. Ostatnie zajęcia (21.11) zostają jako bufor.
@@ -218,7 +218,7 @@ Technicznie:
 | **E2 – Na 4.0** ✅ | 31.10 | auth JWT, role i własność danych, paginacja i filtry, Swagger, testy jednostkowe i integracyjne, seed demo | sekcja 4.0 odhaczona, `npm test` zielone |
 | **E3 – Frontend** ✅ | 8.11 | Angular: logowanie, layout, wszystkie ekrany z sekcji 7, obsługa błędów | pełny scenariusz demo przeklikany w UI |
 | **E4 – Na 5.0** ✅ | 11.11 | event bus + maile (Mailpit), reguła 8, frontend i backend w compose, README, ERD, opcjonalnie CI | sekcja 5.0 odhaczona, czysty klon repo uruchamia się według README |
-| **E5 – Oddanie** | 13.11 | poprawki, tag `v1.0`, nagranie demo | wymagania formalne odhaczone |
+| **E5 – Oddanie** ✅ | 13.11 | poprawki, tag `v1.0`, nagranie demo | wymagania formalne odhaczone |
 
 ## 12. Scenariusz demo (3–5 min)
 1. Logowanie jako sklep: lista produktów z paginacją i wyszukiwaniem, dodanie produktu.
