@@ -1,4 +1,5 @@
 const { NotFoundError, ConflictError } = require("../../errors/AppError");
+const { assertOwnedByActor } = require("../../schemas/scope");
 
 function createStockService({ db, productsRepository, stockRepository, now = () => new Date() }) {
   // Każda zmiana stanu: blokada wiersza produktu, zapis stanu i wpis w historii – w jednej transakcji.
@@ -76,9 +77,11 @@ function createStockService({ db, productsRepository, stockRepository, now = () 
     });
   }
 
-  async function listMovements(productId, { page, pageSize }) {
+  async function listMovements(productId, { page, pageSize }, actor = null) {
     const product = await productsRepository.findById(productId);
     if (!product) throw new NotFoundError("Product", "PRODUCT_NOT_FOUND");
+
+    assertOwnedByActor(actor, product.shopId, "Product");
 
     return stockRepository.listByProduct(productId, { page, pageSize });
   }

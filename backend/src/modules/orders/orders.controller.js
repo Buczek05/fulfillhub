@@ -4,13 +4,13 @@ const { paginate } = require("../../schemas/common");
 function createOrdersController(ordersService) {
   async function listOrders(req, res) {
     const { page, pageSize, status, shopId, q } = req.validated.query;
-    const { data, total } = await ordersService.list({ page, pageSize, status, shopId, q });
+    const { data, total } = await ordersService.list({ page, pageSize, status, shopId, q }, req.user);
 
     res.json(paginate({ data: data.map(toOrderSummaryResponse), total, page, pageSize }));
   }
 
   async function getOrder(req, res) {
-    const order = await ordersService.getById(req.validated.params.id);
+    const order = await ordersService.getById(req.validated.params.id, req.user);
 
     res.json(toOrderResponse(order));
   }

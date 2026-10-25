@@ -1,6 +1,7 @@
 const { Router } = require("express");
 
 const validate = require("../../middleware/validate");
+const authorize = require("../../middleware/authorize");
 const { idParamSchema } = require("../../schemas/common");
 const { receiptSchema, adjustmentSchema, listMovementsQuerySchema } = require("./stock.schemas");
 
@@ -10,11 +11,13 @@ function createStockRouter(stockController) {
 
   router.post(
     "/:id/receipts",
+    authorize("ADMIN", "WAREHOUSE"),
     validate({ params: idParamSchema, body: receiptSchema }),
     stockController.receive,
   );
   router.post(
     "/:id/adjustments",
+    authorize("ADMIN", "WAREHOUSE"),
     validate({ params: idParamSchema, body: adjustmentSchema }),
     stockController.adjust,
   );

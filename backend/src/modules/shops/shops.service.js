@@ -1,11 +1,21 @@
 const { NotFoundError, ConflictError } = require("../../errors/AppError");
+const { isShop, assertOwnedByActor } = require("../../schemas/scope");
 
 function createShopsService({ shopsRepository, productsRepository, ordersRepository }) {
-  async function list({ page, pageSize, q }) {
+  // Sklep widzi na liście wyłącznie samego siebie.
+  async function list({ page, pageSize, q }, actor = null) {
+    if (isShop(actor)) {
+      const shop = await shopsRepository.findById(actor.shopId);
+
+      return { data: shop ? [shop] : [], total: shop ? 1 : 0 };
+    }
+
     return shopsRepository.list({ page, pageSize, q });
   }
 
-  async function getById(id) {
+  async function getById(id, actor = null) {
+    assertOwnedByActor(actor, id, "Shop");
+
     const shop = await shopsRepository.findById(id);
     if (!shop) throw new NotFoundError("Shop", "SHOP_NOT_FOUND");
 

@@ -17,7 +17,11 @@ function createStockController(stockService) {
 
   async function listMovements(req, res) {
     const { page, pageSize } = req.validated.query;
-    const { data, total } = await stockService.listMovements(req.validated.params.id, { page, pageSize });
+    const { data, total } = await stockService.listMovements(
+      req.validated.params.id,
+      { page, pageSize },
+      req.user,
+    );
 
     res.json(paginate({ data: data.map(toMovementResponse), total, page, pageSize }));
   }

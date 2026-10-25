@@ -4,13 +4,13 @@ const { paginate } = require("../../schemas/common");
 function createShopsController(shopsService) {
   async function listShops(req, res) {
     const { page, pageSize, q } = req.validated.query;
-    const { data, total } = await shopsService.list({ page, pageSize, q });
+    const { data, total } = await shopsService.list({ page, pageSize, q }, req.user);
 
     res.json(paginate({ data: data.map(toShopResponse), total, page, pageSize }));
   }
 
   async function getShop(req, res) {
-    const shop = await shopsService.getById(req.validated.params.id);
+    const shop = await shopsService.getById(req.validated.params.id, req.user);
 
     res.json(toShopResponse(shop));
   }

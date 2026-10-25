@@ -1,4 +1,5 @@
 const { NotFoundError, ValidationError, ConflictError } = require("../../errors/AppError");
+const { isShop, scopeShopId, assertOwnedByActor } = require("../../schemas/scope");
 
 // Reguła 3: cykl życia zamówienia trzymany jako dane, nie jako ciąg ifów.
 const STATUS_TRANSITIONS = {
@@ -32,19 +33,30 @@ function createOrdersService({
     }
   }
 
-  async function list({ page, pageSize, status, shopId, q }) {
-    return ordersRepository.list({ page, pageSize, status, shopId, q });
+  async function list({ page, pageSize, status, shopId, q }, actor = null) {
+    return ordersRepository.list({
+      page,
+      pageSize,
+      status,
+      shopId: scopeShopId(actor, shopId),
+      q,
+    });
   }
 
-  async function getById(id) {
+  async function getById(id, actor = null) {
     const order = await ordersRepository.findDetailsById(id);
     if (!order) throw new NotFoundError("Order", "ORDER_NOT_FOUND");
+
+    assertOwnedByActor(actor, order.shopId, "Order");
 
     return order;
   }
 
   // Reguła 1 i 2: rezerwacja stanu przy zamówieniu, pozycje tylko z produktów tego sklepu.
-  async function create(input, actor = null) {
+  async function create(rawInput, actor = null) {
+    // Sklep składa zamówienie wyłącznie na siebie, niezależnie od shopId w body.
+    const input = isShop(actor) ? { ...rawInput, shopId: actor.shopId } : rawInput;
+
     const productIds = input.items.map((item) => item.productId);
     const duplicates = productIds.filter((id, index) => productIds.indexOf(id) !== index);
 
@@ -211,6 +223,8 @@ function createOrdersService({
     return db.transaction(async (trx) => {
       const order = await ordersRepository.findByIdForUpdate(id, trx);
       if (!order) throw new NotFoundError("Order", "ORDER_NOT_FOUND");
+
+      assertOwnedByActor(actor, order.shopId, "Order");
 
       if (order.status === "CANCELLED") return ordersRepository.findDetailsById(id, trx);
 
