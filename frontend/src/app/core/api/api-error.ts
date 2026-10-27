@@ -18,6 +18,27 @@ const MESSAGES: Record<string, string> = {
   SKU_ALREADY_EXISTS: 'Produkt o tym SKU już istnieje w tym sklepie.',
   EMAIL_ALREADY_EXISTS: 'Konto z tym adresem e-mail już istnieje.',
   FORBIDDEN: 'Twoja rola nie pozwala na tę operację.',
+  PRODUCT_NOT_FOUND: 'Nie znaleziono takiego produktu.',
+  ORDER_NOT_FOUND: 'Nie znaleziono takiego zamówienia.',
+  SHOP_NOT_FOUND: 'Nie znaleziono takiego sklepu.',
+  USER_NOT_FOUND: 'Nie znaleziono takiego konta.',
+  ROUTE_NOT_FOUND: 'Nie znaleziono takiego zasobu.',
+  MISSING_TOKEN: 'Sesja wygasła — zaloguj się ponownie.',
+  INVALID_TOKEN: 'Sesja wygasła — zaloguj się ponownie.',
+  INACTIVE_ACCOUNT: 'To konto jest nieaktywne.',
+  INVALID_JSON: 'Nie udało się odczytać danych żądania.',
+  INTERNAL_ERROR: 'Błąd serwera. Spróbuj ponownie za chwilę.',
+};
+
+// Komunikaty z backendu są po angielsku i nie nadają się dla użytkownika,
+// więc dla nieznanego kodu pokazujemy własny tekst dobrany po statusie HTTP.
+const BY_STATUS: Record<number, string> = {
+  400: 'Nieprawidłowe dane — sprawdź formularz.',
+  401: 'Sesja wygasła — zaloguj się ponownie.',
+  403: 'Twoja rola nie pozwala na tę operację.',
+  404: 'Nie znaleziono takiego zasobu.',
+  409: 'Operacja koliduje z aktualnym stanem danych.',
+  500: 'Błąd serwera. Spróbuj ponownie za chwilę.',
 };
 
 export function apiErrorMessage(error: unknown): string {
@@ -36,7 +57,7 @@ export function apiErrorMessage(error: unknown): string {
 
   if (code === 'VALIDATION_ERROR') return 'Formularz zawiera błędy – popraw zaznaczone pola.';
 
-  return body?.error?.message ?? 'Wystąpił nieoczekiwany błąd.';
+  return BY_STATUS[error.status] ?? 'Wystąpił nieoczekiwany błąd.';
 }
 
 // Przy braku stanu backend podaje, czego i ile brakuje – szkoda tego nie pokazać.
