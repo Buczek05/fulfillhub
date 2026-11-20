@@ -44,6 +44,10 @@ Po starcie:
 
 Migracje uruchamiają się automatycznie przy starcie kontenera `backend`.
 
+Jeśli port 5432 jest już zajęty przez inny projekt, zmień `POSTGRES_PORT` w `.env`
+(np. na 5433) — kontenery i tak komunikują się po sieci wewnętrznej Dockera. Pamiętaj wtedy
+o tym samym porcie w `backend/.env`, bo stamtąd korzystają testy uruchamiane lokalnie.
+
 Zatrzymanie (`-v` kasuje też dane bazy):
 
 ```bash
