@@ -206,7 +206,7 @@ Technicznie:
 - [x] README: opis, technologie, instrukcja uruchomienia, główne funkcjonalności
 - [x] ERD (Mermaid w `docs/` i w README) *(E4: docs/ERD.md)*
 - [x] Dokumentacja REST API (Swagger + link w README) *(E2/E4)*
-- [ ] Demo video 3–5 min *(scenariusz gotowy: `docs/DEMO.md`; nagranie zostaje do zrobienia)*
+- [ ] Demo video 3–5 min *(nagrane: 2:49, 1920×1080, bez dźwięku, napisy PL — **11 s poniżej wymaganych 3 min**, do wydłużenia przed oddaniem; scenariusz: `docs/DEMO.md`, projekt montażowy poza repo w `~/Projects/montaz/fulfillhub`)*
 
 ## 11. Etapy realizacji
 **Termin: 14.11.2026** – przedostatnie zajęcia projektowe ZTPAI (online, 10:45). Projekt ma być oddany przed zajęciami, czyli najpóźniej 13.11 wieczorem: tag `v1.0`, README i nagrane demo. Ostatnie zajęcia (21.11) zostają jako bufor.
